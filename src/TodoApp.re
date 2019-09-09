@@ -10,10 +10,33 @@ type item = {
 type state = {items: list(item)};
 
 type action =
-  | AddItem
+  | AddItem(string)
   | ToggleItem(string);
 
-let newItem = () => {id: uuidv4(), title: "A new title", completed: true};
+module Input = {
+  type state = string;
+  [@react.component]
+  let make = (~onSubmit) => {
+    let (text, setText) =
+      React.useReducer((_oldText, newText) => newText, "");
+    ();
+    let valueFromEvent = evt: string => evt->ReactEvent.Form.target##value;
+    <input
+      className="input is-primary is-large"
+      value=text
+      type_="text"
+      placeholder="Write something to do"
+      onChange={evt => setText(valueFromEvent(evt))}
+      onKeyDown={
+        evt =>
+          if (ReactEvent.Keyboard.key(evt) == "Enter") {
+            onSubmit(text);
+            setText("");
+          }
+      }
+    />;
+  };
+};
 
 module TodoItem = {
   [@react.component]
@@ -21,18 +44,19 @@ module TodoItem = {
     <div className="list-item" onClick={_evt => onToggle()}>
       <label className="checkbox">
         <input type_="checkbox" />
-        {str(item.title)}
+        {str(" " ++ item.title)}
       </label>
     </div>;
 };
 
 [@react.component]
 let make = (~title="") => {
+  let newItem = text => {id: uuidv4(), title: text, completed: true};
   let ({items}, dispatch) =
     React.useReducer(
       (state, action) =>
         switch (action) {
-        | AddItem => {items: [newItem(), ...state.items]}
+        | AddItem(text) => {items: [newItem(text), ...state.items]}
         | ToggleItem(id) =>
           let items =
             List.map(
@@ -42,11 +66,7 @@ let make = (~title="") => {
             );
           {items: items};
         },
-      {
-        items: [
-          {id: uuidv4(), title: "Write some things to do", completed: false},
-        ],
-      },
+      {items: [{id: uuidv4(), title: "Buy milk", completed: false}]},
     );
 
   let numItems = List.length(items);
@@ -55,11 +75,9 @@ let make = (~title="") => {
     <div className="section is-tall">
       <header className="title has-text-centered"> {str(title)} </header>
       <main className="container is-tall-container">
-        <button
-          className="button is-block is-info is-fullwidth panel"
-          onClick={_evt => dispatch(AddItem)}>
-          {str("Add")}
-        </button>
+        <div className="field">
+          <Input onSubmit={text => dispatch(AddItem(text))} />
+        </div>
         <div className="box list">
           {
             List.map(
