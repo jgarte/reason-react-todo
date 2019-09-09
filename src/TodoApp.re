@@ -11,7 +11,8 @@ type state = {items: list(item)};
 
 type action =
   | AddItem(string)
-  | ToggleItem(string);
+  | ToggleItem(string)
+  | DeleteItem(string);
 
 module Input = {
   type state = string;
@@ -40,18 +41,23 @@ module Input = {
 
 module TodoItem = {
   [@react.component]
-  let make = (~item, ~onToggle) =>
-    <div className="list-item" onClick={_evt => onToggle()}>
-      <label className="checkbox">
-        <input type_="checkbox" />
+  let make = (~item, ~onToggle, ~onDelete) =>
+    <div className="list-item">
+      <span
+        className={item.completed ? "is-checked" : ""}
+        onClick={_evt => onToggle()}>
         {str(" " ++ item.title)}
-      </label>
+      </span>
+      <button
+        className="delete is-pulled-right"
+        onClick={_evt => onDelete()}
+      />
     </div>;
 };
 
 [@react.component]
 let make = (~title="") => {
-  let newItem = text => {id: uuidv4(), title: text, completed: true};
+  let newItem = text => {id: uuidv4(), title: text, completed: false};
   let ({items}, dispatch) =
     React.useReducer(
       (state, action) =>
@@ -64,6 +70,9 @@ let make = (~title="") => {
                 item.id === id ? {...item, completed: !item.completed} : item,
               state.items,
             );
+          {items: items};
+        | DeleteItem(id) =>
+          let items = List.filter(item => item.id !== id, state.items);
           {items: items};
         },
       {items: [{id: uuidv4(), title: "Buy milk", completed: false}]},
@@ -85,6 +94,7 @@ let make = (~title="") => {
                 <TodoItem
                   key={item.id}
                   onToggle={() => dispatch(ToggleItem(item.id))}
+                  onDelete={() => dispatch(DeleteItem(item.id))}
                   item
                 />,
               items,
