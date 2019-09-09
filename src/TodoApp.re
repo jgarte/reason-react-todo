@@ -56,7 +56,7 @@ module TodoItem = {
 };
 
 [@react.component]
-let make = (~title="") => {
+let make = (~title="What to do") => {
   let newItem = text => {id: uuidv4(), title: text, completed: false};
   let ({items}, dispatch) =
     React.useReducer(
