@@ -10,16 +10,17 @@ type item = {
 type state = {items: list(item)};
 
 type action =
-  | AddItem;
+  | AddItem
+  | ToggleItem(string);
 
 let newItem = () => {id: uuidv4(), title: "A new title", completed: true};
 
 module TodoItem = {
   [@react.component]
-  let make = (~item) =>
-    <div className="list-item">
+  let make = (~item, ~onToggle) =>
+    <div className="list-item" onClick={_evt => onToggle()}>
       <label className="checkbox">
-        <input type_="checkbox" checked={item.completed} />
+        <input type_="checkbox" />
         {str(item.title)}
       </label>
     </div>;
@@ -32,6 +33,14 @@ let make = (~title="") => {
       (state, action) =>
         switch (action) {
         | AddItem => {items: [newItem(), ...state.items]}
+        | ToggleItem(id) =>
+          let items =
+            List.map(
+              item =>
+                item.id === id ? {...item, completed: !item.completed} : item,
+              state.items,
+            );
+          {items: items};
         },
       {
         items: [
@@ -53,7 +62,15 @@ let make = (~title="") => {
         </button>
         <div className="box list">
           {
-            List.map(item => <TodoItem key={item.id} item />, items)
+            List.map(
+              item =>
+                <TodoItem
+                  key={item.id}
+                  onToggle={() => dispatch(ToggleItem(item.id))}
+                  item
+                />,
+              items,
+            )
             |> Array.of_list
             |> React.array
           }
