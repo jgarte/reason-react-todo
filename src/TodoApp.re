@@ -12,6 +12,7 @@ type state = {items: list(item)};
 type action =
   | AddItem(string)
   | ToggleItem(string)
+  | EditItem(string)
   | DeleteItem(string);
 
 module Input = {
@@ -41,8 +42,9 @@ module Input = {
 
 module TodoItem = {
   [@react.component]
-  let make = (~item, ~onToggle, ~onDelete) =>
+  let make = (~item, ~onToggle, ~onEdit, ~onDelete) =>
     <div className="list-item">
+      <i className="icon fas fa-pencil-alt" />
       <span
         className={item.completed ? "is-checked" : ""}
         onClick={_evt => onToggle()}>
@@ -94,6 +96,7 @@ let make = (~title="What to do") => {
                 <TodoItem
                   key={item.id}
                   onToggle={() => dispatch(ToggleItem(item.id))}
+                  onEdit={() => dispatch(EditItem(item.id))}
                   onDelete={() => dispatch(DeleteItem(item.id))}
                   item
                 />,
