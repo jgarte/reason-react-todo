@@ -12,7 +12,6 @@ type state = {items: list(item)};
 type action =
   | AddItem(string)
   | ToggleItem(string)
-  | EditItem(string)
   | DeleteItem(string);
 
 module Input = {
@@ -42,19 +41,57 @@ module Input = {
 
 module TodoItem = {
   [@react.component]
-  let make = (~item, ~onToggle, ~onEdit, ~onDelete) =>
-    <div className="list-item">
-      <i className="icon fas fa-pencil-alt" />
-      <span
-        className={item.completed ? "is-checked" : ""}
-        onClick={_evt => onToggle()}>
-        {str(" " ++ item.title)}
-      </span>
-      <button
-        className="delete is-pulled-right"
-        onClick={_evt => onDelete()}
-      />
-    </div>;
+  let make = (~item, ~label, ~onToggle, ~onDelete) => {
+    let (editing, setEditing) = React.useState(() => false);
+    let (value, onChange) = React.useState(() => label);
+    let onCancel = _evt => setEditing(_ => false);
+    let onFocus = event => ReactEvent.Focus.target(event)##select();
+
+    React.useEffect1(
+      () => {
+        onChange(_ => label);
+        None;
+      },
+      [|label|],
+    );
+
+    <li className="list-item">
+      {
+        if (editing) {
+          <form onSubmit={_ => setEditing(_ => false)} onBlur=onCancel>
+            <input
+              onFocus
+              onBlur=onCancel
+              onChange={evt => onChange(ReactEvent.Form.target(evt)##value)}
+              value
+            />
+          </form>;
+        } else {
+          <>
+            <label
+              className={item.completed ? "checkbox is-checked" : "checkbox"}>
+              <input
+                type_="checkbox"
+                defaultChecked={item.completed}
+                onClick={_evt => onToggle()}
+              />
+              {str(" ")}
+              value->str
+            </label>
+            <span
+              className="icon is-pulled-right" onClick={_evt => onDelete()}>
+              <i className="fas fa-times" />
+            </span>
+            <span
+              className="icon is-pulled-right"
+              onClick={_evt => setEditing(_ => true)}>
+              <i className="fas fa-pencil-alt" />
+            </span>
+          </>;
+        }
+      }
+    </li>;
+  };
 };
 
 [@react.component]
@@ -89,15 +126,15 @@ let make = (~title="What to do") => {
         <div className="field">
           <Input onSubmit={text => dispatch(AddItem(text))} />
         </div>
-        <div className="box list">
+        <ol className="box list">
           {
             List.map(
               item =>
                 <TodoItem
                   key={item.id}
                   onToggle={() => dispatch(ToggleItem(item.id))}
-                  onEdit={() => dispatch(EditItem(item.id))}
                   onDelete={() => dispatch(DeleteItem(item.id))}
+                  label={item.title}
                   item
                 />,
               items,
@@ -105,12 +142,11 @@ let make = (~title="What to do") => {
             |> Array.of_list
             |> React.array
           }
-        </div>
+        </ol>
       </main>
       <footer>
-        <p className="content has-text-left">
-          {str(string_of_int(numItems) ++ " items")}
-        </p>
+        <p className="content has-text-left" />
+        {str(string_of_int(numItems) ++ " items")}
       </footer>
     </div>
   </>;
