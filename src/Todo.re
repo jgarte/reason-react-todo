@@ -1,7 +1,7 @@
 let str = React.string;
 
 [@react.component]
-let make = (~item, ~label, ~onToggle, ~onDelete) => {
+let make = (~item: Item.item, ~label, ~onToggle, ~onDelete) => {
   let (editing, setEditing) = React.useState(() => false);
   let (value, onChange) = React.useState(() => label);
   let onCancel = _evt => setEditing(_ => false);

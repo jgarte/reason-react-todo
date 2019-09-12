@@ -1,12 +1,7 @@
 let str = React.string;
 let uuidv4 = Uuid.V4.uuidv4;
 
-type item = {
-  id: string,
-  title: string,
-  completed: bool,
-};
-type state = {items: list(item)};
+type state = {items: list(Item.item)};
 
 type action =
   | AddItem(string)
@@ -15,22 +10,23 @@ type action =
 
 [@react.component]
 let make = (~title="What to do") => {
-  let newItem = text => {id: uuidv4(), title: text, completed: false};
   let ({items}, dispatch) =
     React.useReducer(
       (state, action) =>
         switch (action) {
-        | AddItem(text) => {items: [newItem(text), ...state.items]}
+        | AddItem(text) => {items: [Item.newItem(text), ...state.items]}
         | ToggleItem(id) =>
           let items =
             List.map(
-              item =>
-                item.id === id ? {...item, completed: !item.completed} : item,
+              (item: Item.item) => (
+                item.id === id ? {...item, completed: !item.completed} : item: Item.item
+              ),
               state.items,
             );
           {items: items};
         | DeleteItem(id) =>
-          let items = List.filter(item => item.id !== id, state.items);
+          let items =
+            List.filter((item: Item.item) => item.id !== id, state.items);
           {items: items};
         },
       {items: [{id: uuidv4(), title: "Buy milk", completed: false}]},
@@ -49,7 +45,7 @@ let make = (~title="What to do") => {
           {
             List.map(
               item =>
-                <TodoItem
+                <Todo
                   item
                   key={item.id}
                   onToggle={() => dispatch(ToggleItem(item.id))}
