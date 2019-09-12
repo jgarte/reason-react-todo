@@ -1,0 +1,17 @@
+.is-tall {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.is-tall-container {
+  flex: 1;
+}
+
+.list-item {
+  cursor: pointer;
+}
+
+.is-checked {
+  text-decoration: line-through;
+}
