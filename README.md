@@ -2,6 +2,16 @@
 
 A simple learning project modeled after **[Jared Forsyth's ReasonReact tutorial](https://jaredforsyth.com/posts/a-reason-react-tutorial/)**.
 
+Differences:
+
+- styling with Bulma
+- unique id for each item
+- you can remove items
+- you can edit items
+- re-factored to use different modules/namespaces
+
+**Live Demo on Github Pages: [reason-react-todo](https://sophiabrandt.github.io/reason-react-todo/)**.
+
 **Build With:**
 
 - [ReasonReact](https://reasonml.github.io/reason-react/) (JSX version 3, with hooks)
