@@ -38,7 +38,7 @@ This uses `refmt` to format all Reason files within the `src` folder.
 npm run build
 ```
 
-This will replace the development artifact `build/Index.js` for an optimized version as well as copy `src/index.html` into `build/`. You can then deploy the contents of the `build` directory (`index.html` and `Index.js`).
+This will replace the development artifact `public/Index.js` for an optimized version as well as copy `src/index.html` into `public/`. You can then deploy the contents of the `public` directory (`index.html` and `Index.js`).
 
 If you make use of routing (via `ReasonReact.Router` or similar logic) ensure that server-side routing handles your routes or that 404's are directed back to `index.html` (which is how the dev server is set up).
 
