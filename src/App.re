@@ -3,34 +3,36 @@ let uuidv4 = Uuid.V4.uuidv4;
 
 type state = {items: list(Item.item)};
 
+let initialState = {
+  items: [{id: uuidv4(), title: "Buy milk", completed: false}],
+};
+
 type action =
   | AddItem(string)
   | ToggleItem(string)
   | DeleteItem(string);
 
+let reducer = (state, action) =>
+  switch (action) {
+  | AddItem(text) => {items: [Item.newItem(text), ...state.items]}
+  | ToggleItem(id) =>
+    let items =
+      List.map(
+        (item: Item.item) => (
+          item.id === id ? {...item, completed: !item.completed} : item: Item.item
+        ),
+        state.items,
+      );
+    {items: items};
+  | DeleteItem(id) =>
+    let items =
+      List.filter((item: Item.item) => item.id !== id, state.items);
+    {items: items};
+  };
+
 [@react.component]
 let make = (~title="What to do") => {
-  let ({items}, dispatch) =
-    React.useReducer(
-      (state, action) =>
-        switch (action) {
-        | AddItem(text) => {items: [Item.newItem(text), ...state.items]}
-        | ToggleItem(id) =>
-          let items =
-            List.map(
-              (item: Item.item) => (
-                item.id === id ? {...item, completed: !item.completed} : item: Item.item
-              ),
-              state.items,
-            );
-          {items: items};
-        | DeleteItem(id) =>
-          let items =
-            List.filter((item: Item.item) => item.id !== id, state.items);
-          {items: items};
-        },
-      {items: [{id: uuidv4(), title: "Buy milk", completed: false}]},
-    );
+  let ({items}, dispatch) = React.useReducer(reducer, initialState);
 
   let numItems = List.length(items);
 
