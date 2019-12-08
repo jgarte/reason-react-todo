@@ -17,6 +17,14 @@ Differences:
 - [ReasonReact](https://reasonml.github.io/reason-react/) (JSX version 3, with hooks)
 - [Bulma](https://bulma.io/)
 
+## Installation
+
+You'll need Node (v12.13.0):
+
+```sh
+npx degit sophiabrandt/reason-react-todo reason-react-todo
+```
+
 ## Run Project
 
 ```sh
